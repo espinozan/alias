@@ -1,17 +1,14 @@
 # alias
 Esta herramienta facilita la administración de alias de comandos en la shell, permite exportarlos, importarlos, buscar por nombre o comando y restaurar la configuración original de tu archivo.
 
-
-¡Claro! Aquí te dejo un **README.md completo y bien documentado** para que puedas subir tu proyecto **"aliasion"** a GitHub. Este archivo incluye una introducción, características, requisitos, instalación, uso, ejemplos, contribuciones y la licencia.
-
 ---
 
-## 📘 **README.md para el repositorio "aliasion"**
+## 📘 **README.md para el repositorio "alias"**
 
 ```md
-# 🔥 aliasion
+# 🔥 alias
 
-**aliasion** es una herramienta de línea de comandos escrita en **Bash** que permite realizar operaciones **CRUD (Crear, Leer, Actualizar, Eliminar)** de alias en sistemas Linux. Esta herramienta facilita la administración de alias, permite exportarlos, importarlos, buscar por nombre o comando y restaurar la configuración original de tu archivo `~/.bashrc`. ¡Todo desde un solo script interactivo! 🚀
+**alias** es una herramienta de línea de comandos escrita en **Bash** que permite realizar operaciones como **Crear, Leer, Actualizar, Eliminar** los Alias en sistemas Linux. Esta herramienta facilita la administración de alias, permite exportarlos, importarlos, buscar por nombre o comando y restaurar la configuración original de tu archivo `~/.bashrc`. Todo desde un solo script interactivo! 🚀
 
 ---
 
@@ -30,9 +27,9 @@ Esta herramienta facilita la administración de alias de comandos en la shell, p
 
 ## 🚀 **Requisitos previos**
 
-Para usar **aliasion**, solo necesitas un sistema **Linux** con un shell Bash. Está diseñado para funcionar de forma nativa en Ubuntu, Debian y otros sistemas Linux basados en Unix.
+Para usar **alias**, solo necesitas un sistema **Linux** con un shell Bash. Está diseñado para funcionar de forma nativa en Ubuntu, Debian y otros sistemas Linux basados en Unix.
 
-- **Sistema operativo**: Linux / Unix  
+- **Sistema operativo**: Linux / Unix 
 - **Shell**: bash (v4 o superior)  
 - **Permisos**: Necesitas permisos de escritura en el archivo `~/.bashrc`
 
@@ -42,17 +39,17 @@ Para usar **aliasion**, solo necesitas un sistema **Linux** con un shell Bash. E
 
 1. **Clona el repositorio** de GitHub:
    ```bash
-   git clone https://github.com/espinozan/aliasion.git
+   git clone https://github.com/espinozan/alias.git
    ```
 
 2. **Accede al directorio del proyecto**:
    ```bash
-   cd aliasion
+   cd alias
    ```
 
 3. **Dale permisos de ejecución al script**:
    ```bash
-   chmod +x crud_alias.sh
+   chmod +x alias.sh
    ```
 
 ¡Listo! Ahora puedes ejecutar el script directamente.
@@ -63,7 +60,7 @@ Para usar **aliasion**, solo necesitas un sistema **Linux** con un shell Bash. E
 
 Para iniciar la herramienta, simplemente ejecuta:
 ```bash
-./crud_alias.sh
+./alias.sh
 ```
 
 Verás el siguiente menú interactivo:  
@@ -174,7 +171,7 @@ Restaura tu archivo `~/.bashrc` desde la copia automática creada antes de cualq
 
 2. **Listar los alias actuales**:  
    ```bash
-   ./crud_alias.sh
+   ./alias.sh
    ```
 
 3. **Actualizar el alias** `hola` para que imprima "¡Hola de nuevo!":  
@@ -190,12 +187,12 @@ Restaura tu archivo `~/.bashrc` desde la copia automática creada antes de cualq
 
 5. **Exportar todos los alias a un archivo**:  
    ```bash
-   ./crud_alias.sh
+   ./alias.sh
    ```
 
 6. **Restaurar tu archivo ~/.bashrc desde la copia de seguridad**:  
    ```bash
-   ./crud_alias.sh
+   ./alias.sh
    ```
 
 ---
@@ -221,34 +218,15 @@ Si encuentras un error o bug, abre un [issue](https://github.com/espinozan/alias
 
 ## 📜 **Licencia**
 
-Este proyecto está bajo la licencia MIT.  
+Este proyecto está bajo la licencia GNU v3.
 Consulta el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 
 ## 🧑‍💻 **Autor**
 
-Creado con ❤️ por **espinozan**.  
-¡Sígueme en [GitHub](https://github.com/espinozan) para más proyectos interesantes!
+Creado con ❤️ por **Nahuel Espinoza**.  
+Sígueme en [GitHub](https://github.com/espinozan) para más proyectos interesantes!
 
 ```
-
----
-
-### 🚀 **Instrucciones para subirlo a GitHub**
-
-1. **Inicia tu repositorio** en GitHub.  
-   - Ve a [GitHub](https://github.com) y crea un repositorio llamado `aliasion`.  
-
-2. **Sube tu proyecto** a GitHub:  
-   ```bash
-   git init
-   git remote add origin https://github.com/espinozan/aliasion.git
-   git add .
-   git commit -m "🚀 Primera versión de aliasion"
-   git branch -M main
-   git push -u origin main
-   ```
-
----
-😎
+### 🚀😎
