@@ -3,7 +3,7 @@ Esta herramienta facilita la administración de alias de comandos en la shell, p
 
 ---
 
-## 📘 **README.md para el repositorio "alias"**
+## 📘 **"ALIAS"**
 
 ```md
 # 🔥 alias
