@@ -22,7 +22,7 @@ create_alias() {
 # Función para listar todos los alias
 list_aliases() {
     echo "📋 Lista de alias actuales:"
-    grep "^alias " "$ALIAS_FILE"
+    grep "^alias " "$ALIAS_FILE" || echo "⚠️ No hay alias definidos actualmente."
 }
 
 # Función para actualizar un alias
@@ -63,11 +63,11 @@ export_aliases() {
 # 📤 Función para importar alias desde un archivo
 import_aliases() {
     if [ -f "$BACKUP_FILE" ]; then
-        cat "$BACKUP_FILE" >> "$ALIAS_FILE"
+        grep "^alias " "$BACKUP_FILE" >> "$ALIAS_FILE"
         echo "✅ Los alias se han importado desde $BACKUP_FILE"
         source "$ALIAS_FILE"
     else
-        echo "⚠️ No se encontró el archivo $BACKUP_FILE"
+        echo "⚠️ No se encontró el archivo $BACKUP_FILE."
     fi
 }
 
@@ -95,6 +95,22 @@ backup_bashrc() {
     echo "🔒 Se ha creado una copia de seguridad de $ALIAS_FILE en $ALIAS_FILE.bak"
 }
 
+# Nueva función: Mostrar alias duplicados
+find_duplicate_aliases() {
+    echo "🔍 Buscando alias duplicados:"
+    grep "^alias " "$ALIAS_FILE" | awk -F= '{print $1}' | sort | uniq -d || echo "✅ No se encontraron alias duplicados."
+}
+
+# Nueva función: Validar alias
+validate_alias() {
+    read -p "Ingresa el nombre del alias para validar: " alias_name
+    if alias $alias_name &> /dev/null; then
+        echo "✅ El alias '$alias_name' está funcionando correctamente."
+    else
+        echo "⚠️ El alias '$alias_name' no es válido o tiene errores."
+    fi
+}
+
 # Menú principal
 while true; do
     echo -e "\n🛠️  **Gestor de Alias en Bash** 🛠️"
@@ -106,9 +122,11 @@ while true; do
     echo "6) Importar alias desde un archivo"
     echo "7) Buscar alias por nombre o comando"
     echo "8) Restaurar copia de seguridad de ~/.bashrc"
-    echo "9) Salir"
+    echo "9) Mostrar alias duplicados"
+    echo "10) Validar un alias"
+    echo "11) Salir"
 
-    read -p "Selecciona una opción [1-9]: " option
+    read -p "Selecciona una opción [1-11]: " option
 
     backup_bashrc  # Crear una copia de seguridad antes de cualquier operación
 
@@ -121,7 +139,9 @@ while true; do
         6) import_aliases ;;
         7) search_alias ;;
         8) restore_backup ;;
-        9) echo "👋 ¡Hasta pronto!"; break ;;
+        9) find_duplicate_aliases ;;
+        10) validate_alias ;;
+        11) echo "👋 ¡Hasta pronto!"; break ;;
         *) echo "❌ Opción no válida. Inténtalo de nuevo." ;;
     esac
 done
