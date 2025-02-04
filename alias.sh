@@ -1,147 +1,324 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Archivo donde se almacenan los alias
-ALIAS_FILE="$HOME/.bashrc"
-BACKUP_FILE="$HOME/.alias_backup"
+# ============================
+# Alias Manager with SQLite
+# ============================
+# A robust alias management tool that uses SQLite for storage and supports Bash, Zsh, and other POSIX-compliant shells.
 
-# Función para crear un alias
-create_alias() {
-    read -p "Ingresa el nombre del alias: " alias_name
-    read -p "Ingresa el comando para el alias: " alias_command
+DB_FILE="$HOME/.alias_manager.db"
 
-    if grep -q "alias $alias_name=" "$ALIAS_FILE"; then
-        echo "⚠️ El alias '$alias_name' ya existe."
-        return
-    fi
-
-    echo "alias $alias_name='$alias_command'" >> "$ALIAS_FILE"
-    echo "✅ Alias '$alias_name' creado correctamente."
-    source "$ALIAS_FILE"
+# Verify SQLite installation
+check_sqlite() {
+  if ! command -v sqlite3 &> /dev/null; then
+    echo "❌ Error: SQLite3 no está instalado. Instálalo para continuar."
+    exit 1
+  fi
 }
 
-# Función para listar todos los alias
+# Initialize SQLite database
+initialize_db() {
+  if [ ! -f "$DB_FILE" ]; then
+    sqlite3 "$DB_FILE" <<EOF
+CREATE TABLE aliases (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL,
+  command TEXT NOT NULL
+);
+EOF
+    echo "🗄️ SQLite database initialized: $DB_FILE"
+  fi
+}
+# Secure the database
+chmod 600 "$DB_FILE"
+
+# Add a new alias with validation
+add_alias() {
+  local alias_name=$1
+  local alias_command=$2
+
+  if [[ ! "$alias_name" =~ ^[a-zA-Z0-9_]+$ ]]; then
+    echo "❌ Alias inválido. Usa solo letras, números y guiones bajos."
+    return 1
+  fi
+
+  if sqlite3 "$DB_FILE" "SELECT 1 FROM aliases WHERE name='$alias_name'" | grep -q 1; then
+    echo "⚠️ Alias '$alias_name' already exists."
+    return 1
+  fi
+
+  sqlite3 "$DB_FILE" "INSERT INTO aliases (name, command) VALUES ('$alias_name', '$alias_command')" || {
+    echo "❌ Error al agregar el alias."
+    return 1
+  }
+  echo "✅ Alias '$alias_name' added successfully."
+}
+
+# Remove an alias
+remove_alias() {
+  local alias_name=$1
+
+  if ! sqlite3 "$DB_FILE" "SELECT 1 FROM aliases WHERE name='$alias_name'" | grep -q 1; then
+    echo "⚠️ Alias '$alias_name' does not exist."
+    return 1
+  fi
+
+  sqlite3 "$DB_FILE" "DELETE FROM aliases WHERE name='$alias_name'"
+  echo "🗑️ Alias '$alias_name' removed successfully."
+}
+
+# List all aliases with pagination and search by name or command
 list_aliases() {
-    echo "📋 Lista de alias actuales:"
-    grep "^alias " "$ALIAS_FILE" || echo "⚠️ No hay alias definidos actualmente."
+  echo -e "📋 \e[1;34mCurrent Aliases\e[0m"
+  
+  # Ask for search term
+  read -rp "Buscar alias por nombre o comando: " search_term
+
+  # Initialize offset and limit for pagination
+  local offset=0
+  local limit=5
+
+  # Build the search query if there's a search term
+  local query="SELECT name, command FROM aliases"
+  if [ -n "$search_term" ]; then
+    query="$query WHERE name LIKE '%$search_term%' OR command LIKE '%$search_term%'"
+  fi
+
+  while true; do
+    # Fetch the results with pagination
+    local results
+    results=$(sqlite3 "$DB_FILE" "$query LIMIT $limit OFFSET $offset")
+
+    if [ -z "$results" ]; then
+      echo "⚠️ No more aliases to display."
+      break
+    fi
+
+    # Display results
+    echo -e "Alias\t\tCommand"
+    echo "-------------------------------"
+    echo "$results" | awk -F '|' '{printf "%-10s  %-50s\n", $1, $2}'
+
+    # Ask if the user wants to see more
+    read -rp "Mostrar más? (s/n): " choice
+    if [[ "$choice" != "s" ]]; then
+      break
+    fi
+    offset=$((offset + limit))
+  done
 }
 
-# Función para actualizar un alias
+# Update an alias
 update_alias() {
-    read -p "Ingresa el nombre del alias que deseas actualizar: " alias_name
+  local alias_name=$1
+  local new_command=$2
 
-    if ! grep -q "alias $alias_name=" "$ALIAS_FILE"; then
-        echo "⚠️ El alias '$alias_name' no existe."
-        return
-    fi
+  if ! sqlite3 "$DB_FILE" "SELECT 1 FROM aliases WHERE name='$alias_name'" | grep -q 1; then
+    echo "⚠️ Alias '$alias_name' does not exist."
+    return 1
+  fi
 
-    read -p "Ingresa el nuevo comando para el alias '$alias_name': " new_command
-    sed -i "/alias $alias_name=/c\alias $alias_name='$new_command'" "$ALIAS_FILE"
-    echo "✅ Alias '$alias_name' actualizado correctamente."
-    source "$ALIAS_FILE"
+  sqlite3 "$DB_FILE" "UPDATE aliases SET command='$new_command' WHERE name='$alias_name'"
+  echo "✅ Alias '$alias_name' updated successfully."
 }
 
-# Función para eliminar un alias
-delete_alias() {
-    read -p "Ingresa el nombre del alias que deseas eliminar: " alias_name
-
-    if ! grep -q "alias $alias_name=" "$ALIAS_FILE"; then
-        echo "⚠️ El alias '$alias_name' no existe."
-        return
-    fi
-
-    sed -i "/alias $alias_name=/d" "$ALIAS_FILE"
-    echo "🗑️ Alias '$alias_name' eliminado correctamente."
-    source "$ALIAS_FILE"
-}
-
-# 📦 Función para exportar alias a un archivo
+# Export aliases to a file
 export_aliases() {
-    grep "^alias " "$ALIAS_FILE" > "$BACKUP_FILE"
-    echo "✅ Todos los alias han sido exportados a $BACKUP_FILE"
+  local export_file=$1
+  sqlite3 "$DB_FILE" "SELECT name, command FROM aliases" > "$export_file" || {
+    echo "❌ Error al exportar alias."
+    return 1
+  }
+  echo "✅ Aliases exported to $export_file."
 }
 
-# 📤 Función para importar alias desde un archivo
+# Import aliases from a file with option to replace existing aliases
 import_aliases() {
-    if [ -f "$BACKUP_FILE" ]; then
-        grep "^alias " "$BACKUP_FILE" >> "$ALIAS_FILE"
-        echo "✅ Los alias se han importado desde $BACKUP_FILE"
-        source "$ALIAS_FILE"
-    else
-        echo "⚠️ No se encontró el archivo $BACKUP_FILE."
+  local import_file=$1
+  if [ ! -f "$import_file" ]; then
+    echo "⚠️ Import file not found: $import_file"
+    return 1
+  fi
+
+  # Ask user if they want to replace existing aliases
+  read -rp "¿Deseas reemplazar los alias existentes? (s/n): " replace
+  if [[ "$replace" == "s" || "$replace" == "S" ]]; then
+    echo "⚠️ Replacing existing aliases..."
+    # Remove existing aliases from the database before import
+    sqlite3 "$DB_FILE" "DELETE FROM aliases WHERE name IN (SELECT name FROM aliases)" || {
+      echo "❌ Error al eliminar alias existentes."
+      return 1
+    }
+    echo "✅ Existing aliases replaced."
+  fi
+
+  # Import new aliases
+  while IFS='|' read -r name command; do
+    # Validate alias format
+    if [[ ! "$name" =~ ^[a-zA-Z0-9_]+$ ]]; then
+      echo "⚠️ Invalid alias name: '$name'. Skipping..."
+      continue
     fi
-}
 
-# 🔍 Función para buscar alias
-search_alias() {
-    read -p "Ingresa la palabra clave para buscar en los alias (nombre o comando): " keyword
-    echo "🔍 Resultados de la búsqueda:"
-    grep -i "$keyword" "$ALIAS_FILE" || echo "⚠️ No se encontraron alias que coincidan con '$keyword'."
-}
-
-# 💾 Función para restaurar el archivo .bashrc desde la copia de seguridad
-restore_backup() {
-    if [ -f "$ALIAS_FILE.bak" ]; then
-        cp "$ALIAS_FILE.bak" "$ALIAS_FILE"
-        echo "✅ Se ha restaurado el archivo .bashrc desde la copia de seguridad."
-        source "$ALIAS_FILE"
+    # Check if alias already exists
+    if sqlite3 "$DB_FILE" "SELECT 1 FROM aliases WHERE name='$name'" | grep -q 1; then
+      echo "⚠️ Alias '$name' already exists. Skipping..."
     else
-        echo "⚠️ No se encontró la copia de seguridad ($ALIAS_FILE.bak)."
+      # Insert new alias
+      sqlite3 "$DB_FILE" "INSERT INTO aliases (name, command) VALUES ('$name', '$command')" || {
+        echo "❌ Error al importar alias '$name'."
+      }
     fi
+  done < "$import_file"
+
+  echo "✅ Aliases imported from $import_file."
 }
 
-# 📋 Crear una copia de seguridad automática de ~/.bashrc antes de cualquier operación
-backup_bashrc() {
-    cp "$ALIAS_FILE" "$ALIAS_FILE.bak"
-    echo "🔒 Se ha creado una copia de seguridad de $ALIAS_FILE en $ALIAS_FILE.bak"
+# Función para respaldar la base de datos
+backup_db() {
+  local backup_file="$DB_FILE-$(date +%Y%m%d%H%M%S).bak"
+  cp "$DB_FILE" "$backup_file"
+  if [[ $? -eq 0 ]]; then
+    echo "✅ Respaldo de la base de datos realizado correctamente: $backup_file"
+  else
+    echo "❌ Error al realizar el respaldo de la base de datos."
+  fi
 }
 
-# Nueva función: Mostrar alias duplicados
-find_duplicate_aliases() {
-    echo "🔍 Buscando alias duplicados:"
-    grep "^alias " "$ALIAS_FILE" | awk -F= '{print $1}' | sort | uniq -d || echo "✅ No se encontraron alias duplicados."
-}
-
-# Nueva función: Validar alias
-validate_alias() {
-    read -p "Ingresa el nombre del alias para validar: " alias_name
-    if alias $alias_name &> /dev/null; then
-        echo "✅ El alias '$alias_name' está funcionando correctamente."
+# Función para restaurar la base de datos desde un archivo de respaldo
+restore_db() {
+  local backup_file="$1"
+  if [[ -f "$backup_file" ]]; then
+    cp "$backup_file" "$DB_FILE"
+    if [[ $? -eq 0 ]]; then
+      echo "✅ Restauración de la base de datos completada desde: $backup_file"
     else
-        echo "⚠️ El alias '$alias_name' no es válido o tiene errores."
+      echo "❌ Error al restaurar la base de datos."
     fi
+  else
+    echo "❌ El archivo de respaldo no existe."
+  fi
 }
 
-# Menú principal
-while true; do
-    echo -e "\n🛠️  **Gestor de Alias en Bash** 🛠️"
-    echo "1) Crear un alias"
-    echo "2) Listar alias"
-    echo "3) Actualizar un alias"
-    echo "4) Eliminar un alias"
-    echo "5) Exportar alias a un archivo"
-    echo "6) Importar alias desde un archivo"
-    echo "7) Buscar alias por nombre o comando"
-    echo "8) Restaurar copia de seguridad de ~/.bashrc"
-    echo "9) Mostrar alias duplicados"
-    echo "10) Validar un alias"
-    echo "11) Salir"
+# Apply aliases to the current shell
+apply_aliases() {
+  sqlite3 "$DB_FILE" "SELECT name, command FROM aliases" | while IFS='|' read -r name command; do
+    alias "$name"="$command"
+  done
+  echo "✅ Aliases applied to the current shell session."
+}
 
-    read -p "Selecciona una opción [1-11]: " option
+persist_alias() {
+  local shell_config
+  
+  # Detecta el shell y selecciona el archivo de configuración
+  case "$SHELL" in
+    */bash)
+      shell_config="$HOME/.bashrc" ;;
+    */zsh)
+      shell_config="$HOME/.zshrc" ;;
+    *)
+      shell_config="$HOME/.profile" ;;  # Para shells genéricos
+  esac
 
-    backup_bashrc  # Crear una copia de seguridad antes de cualquier operación
+  # Escribir alias en el archivo de configuración
+  sqlite3 "$DB_FILE" "SELECT name, command FROM aliases" | while IFS='|' read -r name command; do
+    # Elimina alias preexistentes para evitar duplicados
+    sed -i "/^alias $name=/d" "$shell_config"
+    
+    # Escribir alias en el archivo de configuración, rodeado de comillas dobles
+    echo "alias \"$name\"=\"$command\"" >> "$shell_config"
+  done
 
-    case $option in
-        1) create_alias ;;
-        2) list_aliases ;;
-        3) update_alias ;;
-        4) delete_alias ;;
-        5) export_aliases ;;
-        6) import_aliases ;;
-        7) search_alias ;;
-        8) restore_backup ;;
-        9) find_duplicate_aliases ;;
-        10) validate_alias ;;
-        11) echo "👋 ¡Hasta pronto!"; break ;;
-        *) echo "❌ Opción no válida. Inténtalo de nuevo." ;;
+  echo "✅ Aliases guardados de forma permanente en $shell_config."
+
+  # Recargar automáticamente el archivo de configuración
+  source "$shell_config"
+}
+
+
+# Reset the database
+reset_db() {
+    echo -e "\n⚠️ ¡Advertencia! Esta acción eliminará permanentemente la base de datos de alias."
+    echo -e "🚨 Esta operación no se puede deshacer y podría afectar el funcionamiento de los alias guardados."
+    read -rp "¿Estás seguro de que deseas continuar con la eliminación de la base de datos? (si/no): " confirm
+
+    case "$confirm" in
+        [sS]|[sS][iI][yY])  # Acepta "sí", "si", "Sí", "sí" , "yes", "YES", "Yes", "y", "Y"
+            rm -f "$DB_FILE"
+            echo -e "✅ La base de datos ha sido eliminada correctamente.\n"
+            ;;
+        *)
+            echo -e "❌ Operación cancelada. La base de datos no ha sido modificada.\n"
+            ;;
     esac
-done
+}
+
+# Main Menu
+main_menu() {
+  while true; do
+    echo "=================================="
+    echo -e "\e[1;32m🛠️ Alias Manager\e[0m"
+    echo "=================================="
+    echo "1) Add Alias"
+    echo "2) Remove Alias"
+    echo "3) List Aliases"
+    echo "4) Update Alias"
+    echo "5) Export Aliases"
+    echo "6) Import Aliases"
+    echo "7) Apply Aliases to Shell"
+    echo "8) Reset Database"
+    echo "9) Backup Database"
+    echo "10) Restore Database"
+    echo "11) Exit"
+
+    read -rp "Select an option: " choice
+    case $choice in
+      1)
+        read -rp "Enter alias name: " alias_name
+        read -rp "Enter alias command: " alias_command
+        add_alias "$alias_name" "$alias_command" ;;
+      2)
+        read -rp "Enter alias name to remove: " alias_name
+        remove_alias "$alias_name" ;;
+      3)
+        list_aliases ;;
+      4)
+        read -rp "Enter alias name to update: " alias_name
+        read -rp "Enter new alias command: " alias_command
+        update_alias "$alias_name" "$alias_command" ;;
+      5)
+        read -rp "Enter export file path: " export_file
+        export_aliases "$export_file" ;;
+      6)
+        read -rp "Enter import file path: " import_file
+        import_aliases "$import_file" ;;
+      7)
+        apply_aliases
+        persist_alias ;;
+      8)
+        reset_db ;;
+      9)
+        backup_db ;;
+      10)
+        echo -n "Ingrese el nombre del archivo de respaldo a restaurar: "
+        read -r backup_file
+        restore_db "$backup_file"  # Llamada para restaurar la base de datos desde un respaldo
+        ;;
+      11)
+        echo "👋 Exiting. Goodbye!"
+        exit 0 ;;
+      *)
+        echo "❌ Invalid option. Try again." ;;
+    esac
+    read -n 1 -s -r -p "Presione cualquier tecla para continuar..."
+  done
+}
+
+# Initialize and Run
+check_sqlite
+initialize_db
+main_menu
+
+main() {
+  menu
+}
