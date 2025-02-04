@@ -1,4 +1,4 @@
-# **ALIAS Manager** - *Gestiona tus Alias de forma rápida y segura con SQLite*
+# **ALIAS Manager** - *Gestiona tus Alias de forma rápida y segura*
 
 ## 📝 **Descripción**
 **ALIAS Manager** es una herramienta de línea de comandos (CLI) diseñada para facilitar la gestión de alias en tu sistema utilizando una base de datos SQLite. Compatible con shells como **Bash**, **Zsh** y otros compatibles con POSIX, **ALIAS Manager** te permite crear, listar, actualizar y eliminar alias de forma eficiente y persistente, garantizando que tu flujo de trabajo sea más ágil y ordenado.
