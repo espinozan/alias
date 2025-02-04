@@ -1,16 +1,3 @@
-# alias
-Esta herramienta facilita la administración de alias de comandos en la shell, permite exportarlos, importarlos, buscar por nombre o comando y restaurar la configuración original de tu archivo.
-
----
-
-## 📘 **"ALIAS"**
-
-```md
-# 🔥 alias
-Claro, te hago una versión más completa y estilizada del README, manteniendo todo el contenido actualizado y organizado, además con una mejor estructura y formato visual:
-
----
-
 # **ALIAS Manager** - *Gestiona tus Alias de forma rápida y segura con SQLite*
 
 ## 📝 **Descripción**
