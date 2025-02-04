@@ -7,212 +7,159 @@ Esta herramienta facilita la administración de alias de comandos en la shell, p
 
 ```md
 # 🔥 alias
-
-**alias** es una herramienta de línea de comandos escrita en **Bash** que permite realizar operaciones como **Crear, Leer, Actualizar, Eliminar** los Alias en sistemas Linux. Esta herramienta facilita la administración de alias, permite exportarlos, importarlos, buscar por nombre o comando y restaurar la configuración original de tu archivo `~/.bashrc`. Todo desde un solo script interactivo! 🚀
-
----
-
-## 📌 **Características principales**
-
-- ✅ **Crear alias**: Crea nuevos alias de forma sencilla.
-- ✅ **Listar alias**: Muestra todos los alias actuales.
-- ✅ **Actualizar alias**: Modifica comandos de alias existentes.
-- ✅ **Eliminar alias**: Elimina alias de forma segura.
-- ✅ **Exportar alias**: Exporta todos los alias a un archivo de respaldo (`.alias_backup`).
-- ✅ **Importar alias**: Importa alias desde un archivo previamente exportado.
-- ✅ **Buscar alias**: Busca alias por nombre o por fragmento de comando.
-- ✅ **Restaurar archivo `~/.bashrc`**: Restaura el archivo de alias desde una copia de seguridad automática.
+Claro, te hago una versión más completa y estilizada del README, manteniendo todo el contenido actualizado y organizado, además con una mejor estructura y formato visual:
 
 ---
 
-## 🚀 **Requisitos previos**
+# **ALIAS Manager** - *Gestiona tus Alias de forma rápida y segura con SQLite*
 
-Para usar **alias**, solo necesitas un sistema **Linux** con un shell Bash. Está diseñado para funcionar de forma nativa en Ubuntu, Debian y otros sistemas Linux basados en Unix.
+## 📝 **Descripción**
+**ALIAS Manager** es una herramienta de línea de comandos (CLI) diseñada para facilitar la gestión de alias en tu sistema utilizando una base de datos SQLite. Compatible con shells como **Bash**, **Zsh** y otros compatibles con POSIX, **ALIAS Manager** te permite crear, listar, actualizar y eliminar alias de forma eficiente y persistente, garantizando que tu flujo de trabajo sea más ágil y ordenado.
 
-- **Sistema operativo**: Linux / Unix 
-- **Shell**: bash (v4 o superior)  
-- **Permisos**: Necesitas permisos de escritura en el archivo `~/.bashrc`
+## 🚀 **Características Principales**
+- **Base de Datos SQLite**: Almacena tus alias de forma organizada y segura.
+- **Interfaz CLI Intuitiva**: Una interfaz fácil de usar para gestionar todos tus alias.
+- **Validación Automática**: Verificación de unicidad y formato correcto al agregar alias.
+- **Soporte para Múltiples Shells**: Funciona con Bash, Zsh y otros shells compatibles con POSIX.
+- **Paginación**: Listado paginado para visualizar grandes cantidades de alias.
+- **Persistencia de Alias**: Guarda los alias en tu configuración de shell para uso permanente.
+- **Importación y Exportación**: Importa y exporta alias desde y hacia archivos de texto.
+- **Respaldo y Restauración**: Realiza copias de seguridad y restaura tu base de datos de alias.
 
----
+## 📥 **Requisitos**
+Antes de ejecutar **ALIAS Manager**, asegúrate de tener instalados los siguientes componentes:
 
-## 📥 **Instalación**
+- **SQLite3**: Necesario para la base de datos.
+  
+### Instalación de SQLite3:
 
-1. **Clona el repositorio** de GitHub:
-   ```bash
-   git clone https://github.com/espinozan/alias.git
-   ```
-
-2. **Accede al directorio del proyecto**:
-   ```bash
-   cd alias
-   ```
-
-3. **Dale permisos de ejecución al script**:
-   ```bash
-   chmod +x alias.sh
-   ```
-
-¡Listo! Ahora puedes ejecutar el script directamente.
-
----
-
-## 🚀 **Uso**
-
-Para iniciar la herramienta, simplemente ejecuta:
+#### En Ubuntu/Debian:
 ```bash
-./alias.sh
+sudo apt update
+sudo apt install sqlite3
 ```
 
-Verás el siguiente menú interactivo:  
-```
-🛠️  **Gestor de Alias en Bash** 🛠️
-1) Crear un alias
-2) Listar alias
-3) Actualizar un alias
-4) Eliminar un alias
-5) Exportar alias a un archivo
-6) Importar alias desde un archivo
-7) Buscar alias por nombre o comando
-8) Restaurar copia de seguridad de ~/.bashrc
-9) Salir
+#### En macOS:
+```bash
+brew install sqlite
 ```
 
----
+#### En Windows:
+Puedes descargar SQLite desde su [sitio web oficial](https://www.sqlite.org/download.html) y seguir las instrucciones de instalación.
 
-## 📋 **Funciones disponibles**
+## 🔧 **Instalación de ALIAS Manager**
 
-### 1️⃣ **Crear alias**
-Crea un nuevo alias con un nombre y un comando.
+1. **Descargar el Script:**
 
-**Pasos**:  
-1. Selecciona la opción `1` en el menú.  
-2. Ingresa el nombre del alias.  
-3. Ingresa el comando que se ejecutará con el alias.  
+```bash
+git clone https://github.com/tu_usuario/alias_manager.git
+cd alias_manager
+```
 
-**Ejemplo**:  
-Nombre del alias: `update`  
-Comando para el alias: `sudo apt-get update && sudo apt-get upgrade -y`
+2. **Hacer el Script Ejecutable**:
 
----
+```bash
+chmod +x alias_manager.sh
+```
 
-### 2️⃣ **Listar alias**
-Muestra una lista de todos los alias actualmente definidos en tu archivo `~/.bashrc`.  
-**Pasos**:  
-1. Selecciona la opción `2` en el menú.
+3. **Ejecutar el Script**:
 
----
+```bash
+./alias_manager.sh
+```
 
-### 3️⃣ **Actualizar alias**
-Modifica un alias existente.  
-**Pasos**:  
-1. Selecciona la opción `3` en el menú.  
-2. Introduce el nombre del alias que deseas modificar.  
-3. Introduce el nuevo comando para el alias.  
+## 📚 **Menú Principal**
+Al ejecutar el script, se te presentará un menú interactivo con las siguientes opciones:
 
-**Ejemplo**:  
-Alias a actualizar: `update`  
-Nuevo comando: `sudo apt-get update && sudo apt-get dist-upgrade -y`
+```bash
+==================================
+🛠️ **Alias Manager**
+==================================
+1) Agregar Alias
+2) Eliminar Alias
+3) Listar Aliases
+4) Actualizar Alias
+5) Exportar Aliases
+6) Importar Aliases
+7) Aplicar Aliases al Shell
+8) Restablecer Base de Datos
+9) Respaldar Base de Datos
+10) Restaurar Base de Datos
+11) Salir
+```
 
----
+## 🛠️ **Funcionalidades Detalladas**
 
-### 4️⃣ **Eliminar alias**
-Elimina un alias existente de forma permanente.  
-**Pasos**:  
-1. Selecciona la opción `4` en el menú.  
-2. Introduce el nombre del alias que deseas eliminar.  
+### 1. **Agregar Alias**
+   - Permite agregar nuevos alias a la base de datos, asegurando que no existan alias duplicados y que el comando asociado sea válido.
 
-**Ejemplo**:  
-Alias a eliminar: `update`
+### 2. **Eliminar Alias**
+   - Elimina un alias previamente registrado. Solo debes ingresar el nombre del alias que deseas eliminar.
 
----
+### 3. **Listar Aliases**
+   - Muestra todos los alias existentes. Puedes buscar por nombre o comando, y navegar a través de los resultados en páginas si la lista es extensa.
 
-### 5️⃣ **Exportar alias a un archivo**
-Guarda todos los alias actuales en un archivo de respaldo llamado `.alias_backup`.  
-**Pasos**:  
-1. Selecciona la opción `5` en el menú.  
-2. El archivo de respaldo se crea en la ruta `~/.alias_backup`.  
+### 4. **Actualizar Alias**
+   - Modifica el comando de un alias existente. Solo necesitas ingresar el nombre del alias y el nuevo comando.
 
----
+### 5. **Exportar Aliases**
+   - Exporta todos los alias almacenados a un archivo de texto para realizar copias de seguridad o compartir tus configuraciones con otros usuarios.
 
-### 6️⃣ **Importar alias desde un archivo**
-Restaura los alias desde un archivo de respaldo `.alias_backup`.  
-**Pasos**:  
-1. Selecciona la opción `6` en el menú.  
-2. El contenido de `.alias_backup` se añade al archivo `~/.bashrc`.  
+### 6. **Importar Aliases**
+   - Importa alias desde un archivo de texto en el formato adecuado. Puedes elegir entre agregar nuevos alias o reemplazar los existentes.
 
----
+### 7. **Aplicar Aliases al Shell**
+   - Aplica los alias al shell activo, de forma que estén disponibles inmediatamente sin necesidad de reiniciar el terminal.
 
-### 7️⃣ **Buscar alias por nombre o comando**
-Busca un alias usando una palabra clave (nombre o comando).  
-**Pasos**:  
-1. Selecciona la opción `7` en el menú.  
-2. Introduce la palabra clave a buscar.  
+### 8. **Restablecer Base de Datos**
+   - Elimina todos los alias almacenados y reinicia la base de datos SQLite, dejándola vacía.
 
-**Ejemplo**:  
-Palabra clave: `update`  
-El sistema mostrará todos los alias relacionados.
+### 9. **Respaldar Base de Datos**
+   - Crea un respaldo de la base de datos de alias, generando un archivo con la fecha y hora del respaldo.
 
----
+### 10. **Restaurar Base de Datos**
+   - Permite restaurar un respaldo anterior de la base de datos para recuperar los alias.
 
-### 8️⃣ **Restaurar copia de seguridad de ~/.bashrc**
-Restaura tu archivo `~/.bashrc` desde la copia automática creada antes de cualquier operación.  
-**Pasos**:  
-1. Selecciona la opción `8` en el menú.  
-2. El archivo `~/.bashrc.bak` se restaurará y sobrescribirá `~/.bashrc`.  
+### 11. **Salir**
+   - Finaliza el programa y regresa al terminal.
 
----
+## ⚙️ **Funciones Avanzadas**
 
-## 🔥 **Ejemplo de uso rápido**
-1. **Crear un alias** llamado `hola` para que imprima "Hola Mundo":  
-   ```bash
-   Nombre del alias: hola
-   Comando para el alias: echo 'Hola Mundo'
-   ```
+### **Respaldo y Restauración de la Base de Datos**
+- **Respaldar Base de Datos**: Realiza una copia de seguridad de la base de datos de alias. El archivo de respaldo se guardará con la fecha y hora actuales para facilitar su identificación.
+- **Restaurar desde Respaldo**: Permite restaurar un respaldo anterior de la base de datos, recuperando todos los alias previamente guardados.
 
-2. **Listar los alias actuales**:  
-   ```bash
-   ./alias.sh
-   ```
+### **Importar y Exportar Aliases**
+- **Importar**: Importa un archivo de texto con alias, asegurando que se sigan el formato adecuado (`nombre_alias|comando`).
+- **Exportar**: Exporta todos los alias a un archivo para compartir configuraciones o realizar copias de seguridad.
 
-3. **Actualizar el alias** `hola` para que imprima "¡Hola de nuevo!":  
-   ```bash
-   Alias a actualizar: hola
-   Nuevo comando: echo '¡Hola de nuevo!'
-   ```
+### **Persistencia de Alias**
+- **Aplicar al Shell**: Aplica los alias al shell activo sin necesidad de reiniciar el terminal, haciéndolos disponibles para la sesión actual.
+- **Persistir en la Configuración de Shell**: Guarda los alias permanentemente en tu archivo de configuración del shell (`.bashrc`, `.zshrc`, etc.), para que se carguen automáticamente en futuras sesiones.
 
-4. **Eliminar el alias** `hola`:  
-   ```bash
-   Alias a eliminar: hola
-   ```
+## 🔒 **Seguridad**
+**ALIAS Manager** implementa medidas de seguridad para asegurar que la base de datos de alias se mantenga privada y accesible solo por el usuario autorizado. El archivo de base de datos se protege mediante permisos adecuados (`chmod 600`).
 
-5. **Exportar todos los alias a un archivo**:  
-   ```bash
-   ./alias.sh
-   ```
+## 🛠️ **Cómo Contribuir**
+Si deseas contribuir al proyecto, siéntete libre de abrir un pull request. Asegúrate de seguir las mejores prácticas de código y de realizar pruebas antes de enviar tus cambios.
 
-6. **Restaurar tu archivo ~/.bashrc desde la copia de seguridad**:  
-   ```bash
-   ./alias.sh
-   ```
-
----
-
-## 🤝 **Contribuciones**
-
-¡Las contribuciones son bienvenidas!  
-Si deseas contribuir, sigue estos pasos:
-
-1. **Fork** este repositorio.  
-2. Crea una nueva rama (`git checkout -b feature/nueva-funcionalidad`).  
-3. Realiza tus cambios y haz un commit (`git commit -m 'Añadida nueva funcionalidad'`).  
-4. Sube los cambios (`git push origin feature/nueva-funcionalidad`).  
-5. Abre un **Pull Request**.  
+1. **Haz un Fork** del repositorio.
+2. **Clona tu Fork** en tu máquina local.
+3. **Crea una rama** para tu cambio.
+4. **Haz un commit** y **push** a tu rama.
+5. **Envía un Pull Request**.
 
 ---
 
 ## 🐛 **Reporte de errores**
 
 Si encuentras un error o bug, abre un [issue](https://github.com/espinozan/aliasion/issues) y proporciona información detallada para que podamos ayudarte lo antes posible.  
+
+---
+
+## 🌐 **Enlaces útiles**
+- [Repositorio en GitHub](https://github.com/tu_usuario/alias_manager)
+- [Documentación Oficial de SQLite](https://www.sqlite.org/docs.html)
 
 ---
 
